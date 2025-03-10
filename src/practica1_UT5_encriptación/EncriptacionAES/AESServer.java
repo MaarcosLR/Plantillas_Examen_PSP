@@ -1,0 +1,50 @@
+package practica1_UT5_encriptación.EncriptacionAES;
+
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.Base64;
+
+public class AESServer {
+    public static void main(String[] args) throws Exception {
+        ServerSocket serverSocket = new ServerSocket(5000);
+        System.out.println("Servidor AES esperando conexión...");
+
+        Socket socket = serverSocket.accept();
+        System.out.println("Cliente conectado.");
+
+        // Flujo de entrada para recibir datos del cliente
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+        // Recibir la clave AES del cliente
+        String secretKeyStr = in.readLine(); //COPIAR Y PEGAR
+        byte[] keyBytes = Base64.getDecoder().decode(secretKeyStr); //COPIAR Y PEGAR
+        SecretKey secretKey = new SecretKeySpec(keyBytes, "AES"); //COPIAR Y PEGAR
+        //PARA PRUEBA 2, COPIAR Y PEGAR POR ESTO:
+        //KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        //keyGen.init(128);
+        //SecretKey secretKey = keyGen.generateKey();
+
+        System.out.println("Clave AES recibida en Servidor: " + secretKeyStr); //modificar por secretKey (Prueba2)
+
+        // Recibir el mensaje cifrado
+        String encryptedMessage = in.readLine();
+        //encryptedMessage = encryptedMessage.substring(1); // JUEGO DE PRUEBA 3
+
+        System.out.println("Mensaje cifrado recibido: " + encryptedMessage);
+
+        // Descifrar el mensaje recibido
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedMessage));
+        String decryptedMessage = new String(decryptedBytes, "UTF-8");
+
+        System.out.println("Mensaje descifrado: " + decryptedMessage);
+
+        socket.close();
+        serverSocket.close();
+    }
+}
