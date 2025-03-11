@@ -5,14 +5,15 @@ import java.io.*;
 import java.net.*;
 
 // Servidor TCP que realiza operaciones matemáticas básicas
-public class ServidorCalculadoraTCP {
+public class ServidorControladoCalculadoraTCP {
     public static void main(String[] args) {
         int puerto = 5000; // Puerto donde el servidor escuchará las conexiones
+        boolean ejecutando = true; // Variable para controlar la ejecución del servidor
 
         try (ServerSocket servidor = new ServerSocket(puerto)) {
             System.out.println("Servidor de calculadora esperando conexiones en el puerto " + puerto);
 
-            while (true) {
+            while (ejecutando) {
                 Socket socket = servidor.accept(); // Acepta la conexión del cliente
                 System.out.println("Cliente conectado desde " + socket.getInetAddress());
 
@@ -24,11 +25,17 @@ public class ServidorCalculadoraTCP {
                 String operacion = entrada.readLine();
                 System.out.println("Operación recibida: " + operacion);
 
-                try {
-                    double resultado = calcular(operacion);
-                    salida.println("Resultado: " + resultado);
-                } catch (Exception e) {
-                    salida.println("Error en la operación");
+                if ("SALIR".equalsIgnoreCase(operacion)) { // Si el cliente envía "SALIR", se detiene el servidor
+                    System.out.println("Se recibió la señal de cierre. Apagando servidor...");
+                    salida.println("Servidor apagándose...");
+                    ejecutando = false;
+                } else {
+                    try {
+                        double resultado = calcular(operacion);
+                        salida.println("Resultado: " + resultado);
+                    } catch (Exception e) {
+                        salida.println("Error en la operación");
+                    }
                 }
 
                 socket.close(); // Cerrar conexión con el cliente
