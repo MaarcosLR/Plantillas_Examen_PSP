@@ -1,8 +1,8 @@
 package practica1_UT5_encriptación.EncriptacionAES;
 
 
-
 // Importación de librerías necesarias para el funcionamiento
+
 import javax.crypto.Cipher;
 
 // Importación de librerías necesarias para el funcionamiento
@@ -24,11 +24,10 @@ import java.net.Socket;
 import java.util.Base64;
 
 
-
 // Clase principal que define la funcionalidad del programa
 public class AESServer {
 
-// Método principal que inicia la ejecución del programa
+    // Método principal que inicia la ejecución del programa
     public static void main(String[] args) throws Exception {
 
 // Manejo de sockets para la comunicación en red
@@ -37,19 +36,16 @@ public class AESServer {
         System.out.println("Servidor AES esperando conexión...");
 
 
-
 // Manejo de sockets para la comunicación en red
         Socket socket = serverSocket.accept();
 
         System.out.println("Cliente conectado.");
 
 
-
         // Flujo de entrada para recibir datos del cliente
 
 // Permite leer datos de entrada de manera eficiente
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
 
 
         // Recibir la clave AES del cliente
@@ -70,9 +66,7 @@ public class AESServer {
         //SecretKey secretKey = keyGen.generateKey();
 
 
-
         System.out.println("Clave AES recibida en Servidor: " + secretKeyStr); //modificar por secretKey (Prueba2)
-
 
 
         // Recibir el mensaje cifrado
@@ -82,9 +76,7 @@ public class AESServer {
         //encryptedMessage = encryptedMessage.substring(1); // JUEGO DE PRUEBA 3
 
 
-
         System.out.println("Mensaje cifrado recibido: " + encryptedMessage);
-
 
 
         // Descifrar el mensaje recibido
@@ -100,9 +92,7 @@ public class AESServer {
         String decryptedMessage = new String(decryptedBytes, "UTF-8");
 
 
-
         System.out.println("Mensaje descifrado: " + decryptedMessage);
-
 
 
         socket.close();
