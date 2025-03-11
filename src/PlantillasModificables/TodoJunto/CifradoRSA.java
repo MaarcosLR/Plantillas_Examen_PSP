@@ -1,4 +1,4 @@
-package PlantillasModificables.Cifrado;
+package PlantillasModificables.TodoJunto;
 
 import java.security.*;
 import javax.crypto.Cipher;

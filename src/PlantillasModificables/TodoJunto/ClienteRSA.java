@@ -1,10 +1,8 @@
-package PlantillasModificables.Cifrado;
+package PlantillasModificables.TodoJunto;
 
 import java.io.*;
 import java.net.*;
 import java.security.*;
-import javax.crypto.Cipher;
-import java.util.Base64;
 
 public class ClienteRSA {
     private static final String SERVIDOR = "localhost";

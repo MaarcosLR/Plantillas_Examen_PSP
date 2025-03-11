@@ -1,4 +1,4 @@
-package PlantillasModificables.Cifrado;
+package PlantillasModificables.TodoJunto;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;

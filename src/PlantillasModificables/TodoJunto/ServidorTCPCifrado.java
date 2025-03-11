@@ -1,4 +1,4 @@
-package PlantillasModificables.Cifrado;
+package PlantillasModificables.TodoJunto;
 
 import java.io.*;
 import java.net.*;

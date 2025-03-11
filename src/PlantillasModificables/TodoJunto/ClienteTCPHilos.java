@@ -1,9 +1,9 @@
-package PlantillasModificables.Cifrado;
+package PlantillasModificables.TodoJunto;
 
 import java.io.*;
 import java.net.*;
 
-public class ClienteTCP {
+public class ClienteTCPHilos {
     public static void main(String[] args) {
         String servidor = "localhost";
         int puerto = 5000;

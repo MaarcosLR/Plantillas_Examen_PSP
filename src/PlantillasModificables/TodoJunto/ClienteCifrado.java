@@ -1,7 +1,6 @@
-package PlantillasModificables.Cifrado;
+package PlantillasModificables.TodoJunto;
 import java.io.*;
 import java.net.*;
-import java.util.Base64;
 import java.util.Scanner;
 
 public class ClienteCifrado {
