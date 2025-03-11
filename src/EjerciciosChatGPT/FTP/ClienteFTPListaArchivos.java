@@ -1,70 +1,28 @@
 package EjerciciosChatGPT.FTP;
 
-// Cliente FTP para listar los archivos en el servidor
+import java.io.*;
+import java.net.Socket;
 
-
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.commons.net.ftp.FTPClient;
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.IOException;
-
-
-
-// Clase principal que define la funcionalidad del programa
 public class ClienteFTPListaArchivos {
 
-// Método principal que inicia la ejecución del programa
     public static void main(String[] args) {
+        String servidor = "localhost"; // Dirección del servidor
+        int puerto = 2125; // Puerto donde el servidor FTP escucha
 
-        String servidor = "localhost";
+        try (Socket socket = new Socket(servidor, puerto);
+             BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter salida = new PrintWriter(socket.getOutputStream(), true)) {
 
-        int puerto = 21;
+            salida.println("LIST"); // Comando para solicitar la lista de archivos
+            System.out.println("📂 Lista de archivos en el servidor:");
 
-        String usuario = "usuario";
-
-        String clave = "clave";
-
-
-
-        FTPClient ftpCliente = new FTPClient();
-
-
-
-        try {
-
-            ftpCliente.connect(servidor, puerto);
-
-            ftpCliente.login(usuario, clave);
-
-            ftpCliente.enterLocalPassiveMode();
-
-
-
-            System.out.println("Lista de archivos en el servidor:");
-
-// Bucle que recorre un conjunto de elementos
-            for (String archivo : ftpCliente.listNames()) {
-
+            String archivo;
+            while ((archivo = entrada.readLine()) != null && !archivo.equals("END")) {
                 System.out.println(archivo);
-
             }
 
-
-
-            ftpCliente.logout();
-
-            ftpCliente.disconnect();
-
-
-
         } catch (IOException ex) {
-
             ex.printStackTrace();
-
         }
-
     }
-
 }

@@ -2,106 +2,47 @@ package EjerciciosChatGPT.FTP;
 
 // Cliente FTP para subir y descargar archivos desde un servidor
 
-
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.commons.net.ftp.FTP;
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.commons.net.ftp.FTPClient;
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.File;
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.FileInputStream;
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.FileOutputStream;
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.IOException;
-
-
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 // Clase principal que define la funcionalidad del programa
 public class ClienteFTP {
 
-// Método principal que inicia la ejecución del programa
     public static void main(String[] args) {
-
         String servidor = "localhost";
+        int puerto = 2121;
+        String archivoLocal = "subir.txt";
+        String archivoDescargado = "descargado.txt";
 
-        int puerto = 21;
+        try (Socket socket = new Socket(servidor, puerto);
+             FileInputStream fis = new FileInputStream(archivoLocal);
+             OutputStream salida = socket.getOutputStream()) {
 
-        String usuario = "usuario";
-
-        String clave = "clave";
-
-
-
-        FTPClient ftpCliente = new FTPClient();
-
-
-
-        try {
-
-            // Conectar al servidor FTP
-
-            ftpCliente.connect(servidor, puerto);
-
-            ftpCliente.login(usuario, clave);
-
-            ftpCliente.enterLocalPassiveMode();
-
-            ftpCliente.setFileType(FTP.BINARY_FILE_TYPE);
-
-
-
-            // Subir un archivo
-
-            String archivoLocal = "subir.txt";
-
-            File archivo = new File(archivoLocal);
-
-            FileInputStream fis = new FileInputStream(archivo);
-
-            boolean subido = ftpCliente.storeFile("servidor.txt", fis);
-
-            fis.close();
-
-            System.out.println("Archivo subido: " + subido);
-
-
-
-            // Descargar un archivo
-
-            File archivoDescargado = new File("descargado.txt");
-
-            FileOutputStream fos = new FileOutputStream(archivoDescargado);
-
-            boolean descargado = ftpCliente.retrieveFile("servidor.txt", fos);
-
-            fos.close();
-
-            System.out.println("Archivo descargado: " + descargado);
-
-
-
-            // Cerrar conexión
-
-            ftpCliente.logout();
-
-            ftpCliente.disconnect();
-
-
+            byte[] buffer = new byte[1024];
+            int bytesLeidos;
+            while ((bytesLeidos = fis.read(buffer)) > 0) {
+                salida.write(buffer, 0, bytesLeidos);
+            }
+            System.out.println("Archivo enviado al servidor.");
 
         } catch (IOException ex) {
-
             ex.printStackTrace();
-
         }
 
-    }
+        try (Socket socket = new Socket(servidor, puerto + 1);
+             InputStream entrada = socket.getInputStream();
+             FileOutputStream fos = new FileOutputStream(archivoDescargado)) {
 
+            byte[] buffer = new byte[1024];
+            int bytesLeidos;
+            while ((bytesLeidos = entrada.read(buffer)) > 0) {
+                fos.write(buffer, 0, bytesLeidos);
+            }
+            System.out.println("Archivo descargado correctamente.");
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

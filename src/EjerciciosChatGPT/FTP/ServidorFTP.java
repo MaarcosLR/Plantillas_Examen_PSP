@@ -1,86 +1,65 @@
 package EjerciciosChatGPT.FTP;
 
-// Servidor FTP básico usando Apache FTPServer
+// Servidor FTP básico sin usar Apache FTPServer
 
-
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.ftpserver.FtpServer;
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.ftpserver.FtpServerFactory;
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.ftpserver.listener.ListenerFactory;
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.ftpserver.usermanager.ClearTextPasswordEncryptor;
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.ftpserver.usermanager.UserFactory;
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.ftpserver.usermanager.impl.PropertiesUserManagerFactory;
-
-
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.File;
-
-
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 // Clase principal que define la funcionalidad del programa
 public class ServidorFTP {
 
-// Método principal que inicia la ejecución del programa
     public static void main(String[] args) {
+        int puerto = 2121;
+        int puertoDescarga = 2122;
 
-        try {
+        Thread subirThread = new Thread(() -> {
+            try (ServerSocket servidor = new ServerSocket(puerto)) {
+                System.out.println("Servidor esperando archivos en el puerto " + puerto);
 
-            FtpServerFactory serverFactory = new FtpServerFactory();
+                while (true) {
+                    Socket socket = servidor.accept();
+                    InputStream entrada = socket.getInputStream();
+                    FileOutputStream fos = new FileOutputStream("servidor.txt");
 
-            ListenerFactory factory = new ListenerFactory();
+                    byte[] buffer = new byte[1024];
+                    int bytesLeidos;
+                    while ((bytesLeidos = entrada.read(buffer)) > 0) {
+                        fos.write(buffer, 0, bytesLeidos);
+                    }
+                    fos.close();
+                    socket.close();
+                    System.out.println("Archivo recibido y guardado en servidor.txt");
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
+        Thread descargaThread = new Thread(() -> {
+            try (ServerSocket servidor = new ServerSocket(puertoDescarga)) {
+                System.out.println("Servidor esperando solicitudes de descarga en el puerto " + puertoDescarga);
 
+                while (true) {
+                    Socket socket = servidor.accept();
+                    OutputStream salida = socket.getOutputStream();
+                    FileInputStream fis = new FileInputStream("servidor.txt");
 
-            // Configurar puerto del servidor FTP
+                    byte[] buffer = new byte[1024];
+                    int bytesLeidos;
+                    while ((bytesLeidos = fis.read(buffer)) > 0) {
+                        salida.write(buffer, 0, bytesLeidos);
+                    }
+                    fis.close();
+                    socket.close();
+                    System.out.println("Archivo enviado correctamente.");
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
-            factory.setPort(21);
-
-            serverFactory.addListener("default", factory.createListener());
-
-
-
-            // Configurar usuarios
-
-            PropertiesUserManagerFactory userManagerFactory = new PropertiesUserManagerFactory();
-
-            userManagerFactory.setFile(new File("usuarios.properties"));
-
-            userManagerFactory.setPasswordEncryptor(new ClearTextPasswordEncryptor());
-
-            serverFactory.setUserManager(userManagerFactory.createUserManager());
-
-
-
-            // Iniciar servidor FTP
-
-            FtpServer servidor = serverFactory.createServer();
-
-            servidor.start();
-
-
-
-            System.out.println("Servidor FTP iniciado en el puerto 21.");
-
-
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-
-        }
-
+        subirThread.start();
+        descargaThread.start();
     }
-
 }

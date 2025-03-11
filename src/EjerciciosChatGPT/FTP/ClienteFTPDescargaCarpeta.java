@@ -1,81 +1,53 @@
 package EjerciciosChatGPT.FTP;
 
-// Cliente FTP que descarga todos los archivos de una carpeta
+import java.io.*;
+import java.net.Socket;
 
-
-
-// Importación de librerías necesarias para el funcionamiento
-import org.apache.commons.net.ftp.FTPClient;
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.FileOutputStream;
-
-// Importación de librerías necesarias para el funcionamiento
-import java.io.IOException;
-
-
-
-// Clase principal que define la funcionalidad del programa
 public class ClienteFTPDescargaCarpeta {
 
-// Método principal que inicia la ejecución del programa
     public static void main(String[] args) {
+        String servidor = "localhost"; // Dirección del servidor
+        int puerto = 2123; // Puerto de conexión
+        String carpetaDescarga = "descargas/";
 
-        String servidor = "localhost";
-
-        int puerto = 21;
-
-        String usuario = "usuario";
-
-        String clave = "clave";
-
-
-
-        FTPClient ftpCliente = new FTPClient();
-
-
-
-        try {
-
-            ftpCliente.connect(servidor, puerto);
-
-            ftpCliente.login(usuario, clave);
-
-            ftpCliente.enterLocalPassiveMode();
-
-
-
-            System.out.println("Descargando archivos de la carpeta...");
-
-
-
-// Bucle que recorre un conjunto de elementos
-            for (String archivo : ftpCliente.listNames()) {
-
-                FileOutputStream fos = new FileOutputStream("descargas/" + archivo);
-
-                ftpCliente.retrieveFile(archivo, fos);
-
-                fos.close();
-
-                System.out.println("Descargado: " + archivo);
-
-            }
-
-
-
-            ftpCliente.logout();
-
-            ftpCliente.disconnect();
-
-
-
-        } catch (IOException ex) {
-
-            ex.printStackTrace();
-
+        File directorio = new File(carpetaDescarga);
+        if (!directorio.exists()) {
+            directorio.mkdirs(); // Crear carpeta si no existe
         }
 
+        try (Socket socket = new Socket(servidor, puerto);
+             BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter salida = new PrintWriter(socket.getOutputStream(), true)) {
+
+            salida.println("LIST"); // Enviar comando para listar archivos
+            String archivo;
+            while ((archivo = entrada.readLine()) != null && !archivo.equals("END")) {
+                descargarArchivo(servidor, archivo, carpetaDescarga);
+            }
+
+            System.out.println("✅ Descarga completa.");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
+    private static void descargarArchivo(String servidor, String nombreArchivo, String carpetaDescarga) {
+        int puertoDescarga = 2124; // Puerto para descargar archivos
+
+        try (Socket socket = new Socket(servidor, puertoDescarga);
+             InputStream entrada = socket.getInputStream();
+             FileOutputStream fos = new FileOutputStream(carpetaDescarga + nombreArchivo)) {
+
+            byte[] buffer = new byte[1024];
+            int bytesLeidos;
+            while ((bytesLeidos = entrada.read(buffer)) > 0) {
+                fos.write(buffer, 0, bytesLeidos);
+            }
+
+            System.out.println("📥 Archivo descargado: " + nombreArchivo);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 }
